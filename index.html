@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FM BIZ V1.0.0 - Workshop ERP</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/themes.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+</head>
+<body>
+    <!-- SPLASH SCREEN -->
+    <div id="splash-screen" class="splash-screen">
+        <div class="splash-content">
+            <div class="splash-logo">
+                <i class="icon-briefcase"></i>
+            </div>
+            <h1>FM BIZ</h1>
+            <p>Workshop ERP System</p>
+            <div class="splash-loader">
+                <div class="loader"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MPIN SETUP SCREEN -->
+    <div id="mpin-setup-screen" class="screen hidden">
+        <div class="container">
+            <div class="mpin-wrapper">
+                <div class="mpin-header">
+                    <h2>Setup Your MPIN</h2>
+                    <p>Secure your account with a 4-digit PIN</p>
+                </div>
+
+                <form id="mpin-setup-form" class="mpin-form">
+                    <div class="form-step" id="step-1">
+                        <h3>Step 1: Create MPIN</h3>
+                        
+                        <div class="form-group">
+                            <label for="new-mpin">Enter MPIN (4 digits)</label>
+                            <input type="password" id="new-mpin" class="mpin-input" maxlength="4" placeholder="••••" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="confirm-mpin">Confirm MPIN</label>
+                            <input type="password" id="confirm-mpin" class="mpin-input" maxlength="4" placeholder="••••" required>
+                        </div>
+
+                        <button type="button" class="btn btn-primary btn-large" onclick="goToSecurityQuestions()">
+                            Next
+                        </button>
+                    </div>
+
+                    <div class="form-step hidden" id="step-2">
+                        <h3>Step 2: Security Questions</h3>
+                        <p class="text-secondary">Answer these questions for account recovery</p>
+
+                        <div class="security-questions">
+                            <div class="form-group">
+                                <label for="q1">What is your mother's name?</label>
+                                <input type="text" id="q1" class="form-control" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="q2">What is your first pet's name?</label>
+                                <input type="text" id="q2" class="form-control" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="q3">In what city were you born?</label>
+                                <input type="text" id="q3" class="form-control" required>
+                            </div>
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="button" class="btn btn-secondary" onclick="backToMpin()">Back</button>
+                            <button type="submit" class="btn btn-primary">Complete Setup</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- MPIN UNLOCK SCREEN -->
+    <div id="mpin-unlock-screen" class="screen hidden">
+        <div class="unlock-wrapper">
+            <div class="unlock-logo">
+                <i class="icon-lock"></i>
+            </div>
+            <h2>Welcome Back</h2>
+            <p>Enter your MPIN to continue</p>
+
+            <form id="mpin-unlock-form" class="unlock-form">
+                <input type="password" id="unlock-mpin" class="mpin-input large" maxlength="4" placeholder="••••" required>
+                <button type="submit" class="btn btn-primary btn-large">Unlock</button>
+                <button type="button" class="btn btn-link" onclick="showMpinRecovery()">Forgot MPIN?</button>
+            </form>
+
+            <div id="mpin-recovery" class="hidden">
+                <div class="recovery-modal">
+                    <h3>Recover MPIN</h3>
+                    <p>Answer your security questions to reset MPIN</p>
+                    <form id="recovery-form">
+                        <div class="form-group">
+                            <label for="recovery-q1">What is your mother's name?</label>
+                            <input type="text" id="recovery-q1" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="recovery-q2">What is your first pet's name?</label>
+                            <input type="text" id="recovery-q2" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="recovery-q3">In what city were you born?</label>
+                            <input type="text" id="recovery-q3" class="form-control" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Verify & Reset</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MAIN APP -->
+    <div id="main-app" class="app hidden">
+        <!-- FLOATING NAVIGATION -->
+        <nav class="floating-nav">
+            <button class="nav-item active" data-screen="dashboard" onclick="switchScreen('dashboard')">
+                <span class="nav-icon">📊</span>
+                <span class="nav-label">Dashboard</span>
+            </button>
+            <button class="nav-item" data-screen="invoices" onclick="switchScreen('invoices')">
+                <span class="nav-icon">📄</span>
+                <span class="nav-label">Invoices</span>
+            </button>
+            <button class="nav-item" data-screen="inventory" onclick="switchScreen('inventory')">
+                <span class="nav-icon">📦</span>
+                <span class="nav-label">Inventory</span>
+            </button>
+            <button class="nav-item" data-screen="customers" onclick="switchScreen('customers')">
+                <span class="nav-icon">👥</span>
+                <span class="nav-label">Customers</span>
+            </button>
+            <button class="nav-item" data-screen="settings" onclick="switchScreen('settings')">
+                <span class="nav-icon">⚙️</span>
+                <span class="nav-label">Settings</span>
+            </button>
+        </nav>
+
+        <!-- APP HEADER -->
+        <header class="app-header">
+            <div class="header-left">
+                <h1 class="app-title" id="screen-title">Dashboard</h1>
+                <p class="app-subtitle">Tanveer Auto Electrician</p>
+            </div>
+            <div class="header-right">
+                <button class="btn-icon" onclick="toggleNotifications()">🔔</button>
+                <button class="btn-icon" onclick="toggleUserMenu()">👤</button>
+            </div>
+        </header>
+
+        <!-- MAIN CONTENT -->
+        <main class="app-content">
+
+            <!-- DASHBOARD SCREEN -->
+            <section id="dashboard-screen" class="screen active">
+                <div class="container">
+                    <!-- Metrics Grid -->
+                    <div class="metrics-grid">
+                        <div class="metric-card glass">
+                            <div class="metric-icon income">💰</div>
+                            <div class="metric-info">
+                                <h3 class="metric-label">Today's Sales</h3>
+                                <p class="metric-value" id="today-sales">₹0</p>
+                            </div>
+                        </div>
+
+                        <div class="metric-card glass">
+                            <div class="metric-icon revenue">📈</div>
+                            <div class="metric-info">
+                                <h3 class="metric-label">Total Revenue</h3>
+                                <p class="metric-value" id="total-revenue">₹0</p>
+                            </div>
+                        </div>
+
+                        <div class="metric-card glass">
+                            <div class="metric-icon pending">⏳</div>
+                            <div class="metric-info">
+                                <h3 class="metric-label">Pending Payments</h3>
+                                <p class="metric-value" id="pending-amount">₹0</p>
+                            </div>
+                        </div>
+
+                        <div class="metric-card glass">
+                            <div class="metric-icon alert">⚠️</div>
+                            <div class="metric-info">
+                                <h3 class="metric-label">Low Stock Items</h3>
+                                <p class="metric-value" id="low-stock">0</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Quick Actions -->
+                    <div class="quick-actions">
+                        <h2>Quick Actions</h2>
+                        <div class="action-buttons">
+                            <button class="btn btn-primary" onclick="switchScreen('invoices'); openInvoiceCreate()">
+                                ➕ New Invoice
+                            </button>
+                            <button class="btn btn-secondary" onclick="switchScreen('customers'); openAddCustomer()">
+                                👥 Add Customer
+                            </button>
+                            <button class="btn btn-secondary" onclick="switchScreen('inventory'); openAddProduct()">
+                                📦 Add Product
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Charts Section -->
+                    <div class="charts-section">
+                        <div class="chart-container glass">
+                            <h3>Revenue Trend</h3>
+                            <canvas id="revenue-chart"></canvas>
+                        </div>
+                        <div class="chart-container glass">
+                            <h3>Sales by Category</h3>
+                            <canvas id="sales-chart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Recent Invoices -->
+                    <div class="recent-section">
+                        <div class="section-header">
+                            <h2>Recent Invoices</h2>
+                            <a href="#" onclick="switchScreen('invoices')">View All</a>
+                        </div>
+                        <div id="recent-invoices-list" class="invoice-list">
+                            <p class="empty-state">No invoices yet</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- INVOICES SCREEN -->
+            <section id="invoices-screen" class="screen">
+                <div class="container">
+                    <div class="screen-header">
+                        <h2>Invoices</h2>
+                        <button class="btn btn-primary" onclick="openInvoiceCreate()">➕ New Invoice</button>
+                    </div>
+
+                    <!-- Invoice Filters -->
+                    <div class="filter-bar glass">
+                        <input type="text" id="invoice-search" class="form-control" placeholder="Search invoices...">
+                        <select id="invoice-status-filter" class="form-control">
+                            <option value="">All Status</option>
+                            <option value="draft">Draft</option>
+                            <option value="completed">Completed</option>
+                            <option value="paid">Paid</option>
+                        </select>
+                    </div>
+
+                    <!-- Invoices List -->
+                    <div id="invoices-list" class="invoice-list">
+                        <p class="empty-state">No invoices found</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- CREATE/EDIT INVOICE SCREEN -->
+            <section id="create-invoice-screen" class="screen">
+                <div class="container">
+                    <div class="screen-header">
+                        <h2>Create Invoice</h2>
+                        <button class="btn-icon" onclick="switchScreen('invoices')">✕</button>
+                    </div>
+
+                    <form id="invoice-form" class="invoice-form glass">
+                        <!-- Business Header -->
+                        <div class="business-header">
+                            <h3>TANVEER AUTO ELECTRICIAN & CAR AC SPECIALIST</h3>
+                            <p>Malegaon Road, Near Burhani Ice Factory | Dhule, Maharashtra 424001</p>
+                            <p>📞 7755937788 | 📧 tks33178@gmail.com</p>
+                        </div>
+
+                        <!-- Customer Section -->
+                        <div class="form-section">
+                            <h3>Customer Details</h3>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="invoice-customer">Customer</label>
+                                    <div class="select-wrapper">
+                                        <select id="invoice-customer" class="form-control" onchange="loadCustomerVehicles()" required>
+                                            <option value="">Select Customer</option>
+                                        </select>
+                                        <button type="button" class="btn-add" onclick="openAddCustomer()" title="Add New Customer">+</button>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="invoice-vehicle">Vehicle</label>
+                                    <select id="invoice-vehicle" class="form-control">
+                                        <option value="">Select Vehicle</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Items Section -->
+                        <div class="form-section">
+                            <div class="section-header">
+                                <h3>Items</h3>
+                                <button type="button" class="btn btn-secondary" onclick="openAddInvoiceItem()">
+                                    ➕ Add Item
+                                </button>
+                            </div>
+
+                            <div id="invoice-items-list" class="items-table">
+                                <div class="table-header">
+                                    <div class="col-name">Item Name</div>
+                                    <div class="col-qty">Qty</div>
+                                    <div class="col-price">Price</div>
+                                    <div class="col-total">Total</div>
+                                    <div class="col-action">Action</div>
+                                </div>
+                                <p class="empty-state">No items added</p>
+                            </div>
+                        </div>
+
+                        <!-- Totals Section -->
+                        <div class="totals-section glass">
+                            <div class="total-row">
+                                <span>Subtotal</span>
+                                <span id="invoice-subtotal">₹0.00</span>
+                            </div>
+                            <div class="total-row">
+                                <span>Tax (18%)</span>
+                                <span id="invoice-tax">₹0.00</span>
+                            </div>
+                            <div class="total-row grand">
+                                <span>Total</span>
+                                <span id="invoice-total">₹0.00</span>
+                            </div>
+                            <input type="hidden" id="invoice-total-value">
+                        </div>
+
+                        <!-- Actions -->
+                        <div class="form-actions">
+                            <button type="button" class="btn btn-secondary" onclick="switchScreen('invoices')">Cancel</button>
+                            <button type="button" class="btn btn-secondary" onclick="saveDraftInvoice()">Save Draft</button>
+                            <button type="button" class="btn btn-primary" onclick="finalizeInvoice()">Finalize & Preview</button>
+                        </div>
+                    </form>
+                </div>
+            </section>
+
+            <!-- INVOICE PREVIEW SCREEN -->
+            <section id="invoice-preview-screen" class="screen">
+                <div class="container">
+                    <div class="screen-header">
+                        <h2>Invoice Preview</h2>
+                        <button class="btn-icon" onclick="switchScreen('invoices')">✕</button>
+                    </div>
+
+                    <div class="preview-actions">
+                        <button class="btn btn-primary" onclick="generateInvoicePDF()">📥 Download PDF</button>
+                        <button class="btn btn-secondary" onclick="printInvoice()">🖨️ Print</button>
+                        <button class="btn btn-secondary" onclick="openPaymentEntry()">💳 Record Payment</button>
+                        <button class="btn btn-secondary" onclick="switchScreen('invoices')">Close</button>
+                    </div>
+
+                    <div id="invoice-preview" class="invoice-preview glass">
+                        <!-- Generated by JavaScript -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- INVENTORY SCREEN -->
+            <section id="inventory-screen" class="screen">
+                <div class="container">
+                    <div class="screen-header">
+                        <h2>Inventory</h2>
+                        <button class="btn btn-primary" onclick="openAddProduct()">➕ Add Product</button>
+                    </div>
+
+                    <div class="filter-bar glass">
+                        <input type="text" id="product-search" class="form-control" placeholder="Search products...">
+                        <select id="product-category" class="form-control">
+                            <option value="">All Categories</option>
+                            <option value="Electrical">Electrical</option>
+                            <option value="Engine">Engine</option>
+                            <option value="Maintenance">Maintenance</option>
+                            <option value="AC">AC System</option>
+                        </select>
+                    </div>
+
+                    <div id="inventory-list" class="product-grid">
+                        <p class="empty-state">No products found</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- CUSTOMERS SCREEN -->
+            <section id="customers-screen" class="screen">
+                <div class="container">
+                    <div class="screen-header">
+                        <h2>Customers</h2>
+                        <button class="btn btn-primary" onclick="openAddCustomer()">➕ Add Customer</button>
+                    </div>
+
+                    <div class="filter-bar glass">
+                        <input type="text" id="customer-search" class="form-control" placeholder="Search customers...">
+                    </div>
+
+                    <div id="customers-list" class="customer-list">
+                        <p class="empty-state">No customers found</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SETTINGS SCREEN -->
+            <section id="settings-screen" class="screen">
+                <div class="container">
+                    <h2>Settings</h2>
+
+                    <!-- Appearance Settings -->
+                    <div class="settings-section glass">
+                        <h3>Appearance</h3>
+                        <div class="setting-item">
+                            <label>Theme</label>
+                            <div class="theme-options">
+                                <button class="theme-btn" data-theme="light-classic" onclick="setTheme('light-classic')">
+                                    <span class="theme-preview" style="background: #fafafa;"></span>
+                                    <span>Light Classic</span>
+                                </button>
+                                <button class="theme-btn" data-theme="light-frost" onclick="setTheme('light-frost')">
+                                    <span class="theme-preview" style="background: #f0f9ff;"></span>
+                                    <span>Light Frost</span>
+                                </button>
+                                <button class="theme-btn" data-theme="dark-amoled" onclick="setTheme('dark-amoled')">
+                                    <span class="theme-preview" style="background: #000000;"></span>
+                                    <span>Dark AMOLED</span>
+                                </button>
+                                <button class="theme-btn" data-theme="dark-graphite" onclick="setTheme('dark-graphite')">
+                                    <span class="theme-preview" style="background: #1f2937;"></span>
+                                    <span>Dark Graphite</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="setting-item">
+                            <label for="ui-style">UI Style</label>
+                            <select id="ui-style" class="form-control" onchange="setUIStyle(this.value)">
+                                <option value="modern">Modern Cards</option>
+                                <option value="compact">Compact List</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- System Settings -->
+                    <div class="settings-section glass">
+                        <h3>System</h3>
+                        <div class="setting-item">
+                            <label for="language">Language</label>
+                            <select id="language" class="form-control" onchange="setLanguage(this.value)">
+                                <option value="en">English</option>
+                                <option value="hi">हिंदी (Hindi)</option>
+                            </select>
+                        </div>
+
+                        <div class="setting-item">
+                            <button class="btn btn-secondary" onclick="changeMPIN()">🔐 Change MPIN</button>
+                        </div>
+
+                        <div class="setting-item">
+                            <button class="btn btn-secondary" onclick="exportData()">💾 Export Data</button>
+                        </div>
+
+                        <div class="setting-item">
+                            <button class="btn btn-secondary" onclick="importData()">📂 Import Data</button>
+                        </div>
+                    </div>
+
+                    <!-- About -->
+                    <div class="settings-section glass">
+                        <h3>About</h3>
+                        <p><strong>FM BIZ V1.0.0</strong></p>
+                        <p>Offline Workshop ERP System</p>
+                        <hr>
+                        <p><strong>Developed by:</strong><br>
+                        PRINCE INFOTECH DHULE<br>
+                        Pathan Fardeen Khan Shakil Khan<br>
+                        📞 +91 8788273897<br>
+                        📧 princeit.dh@gmail.com</p>
+                        <hr>
+                        <p><strong>Design Partner:</strong><br>
+                        FM GRAPHICS (@fmgr.aphics)</p>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <!-- MODALS -->
+    <!-- Add/Edit Customer Modal -->
+    <div id="customer-modal" class="modal hidden">
+        <div class="modal-content glass">
+            <div class="modal-header">
+                <h2 id="customer-modal-title">Add Customer</h2>
+                <button class="btn-close" onclick="closeModal('customer-modal')">✕</button>
+            </div>
+            <form id="customer-form" class="modal-form">
+                <div class="form-group">
+                    <label for="customer-name">Customer Name *</label>
+                    <input type="text" id="customer-name" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="customer-mobile">Mobile Number</label>
+                    <input type="tel" id="customer-mobile" class="form-control">
+                </div>
+                <div class="form-group">
+                    <label for="customer-address">Address</label>
+                    <textarea id="customer-address" class="form-control" rows="3"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="customer-vehicle">Vehicle Number</label>
+                    <input type="text" id="customer-vehicle" class="form-control" placeholder="e.g., MH-01-1234">
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('customer-modal')">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Add Product Modal -->
+    <div id="product-modal" class="modal hidden">
+        <div class="modal-content glass">
+            <div class="modal-header">
+                <h2 id="product-modal-title">Add Product</h2>
+                <button class="btn-close" onclick="closeModal('product-modal')">✕</button>
+            </div>
+            <form id="product-form" class="modal-form">
+                <div class="form-group">
+                    <label for="product-name">Product Name *</label>
+                    <input type="text" id="product-name" class="form-control" required>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="product-category">Category</label>
+                        <select id="product-category-modal" class="form-control">
+                            <option value="Electrical">Electrical</option>
+                            <option value="Engine">Engine</option>
+                            <option value="Maintenance">Maintenance</option>
+                            <option value="AC">AC System</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="product-stock">Stock Qty</label>
+                        <input type="number" id="product-stock" class="form-control" value="0">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="product-purchase-price">Purchase Price</label>
+                        <input type="number" id="product-purchase-price" class="form-control" step="0.01">
+                    </div>
+                    <div class="form-group">
+                        <label for="product-sale-price">Sale Price *</label>
+                        <input type="number" id="product-sale-price" class="form-control" step="0.01" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="product-min-stock">Min Stock Level</label>
+                    <input type="number" id="product-min-stock" class="form-control" value="5">
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('product-modal')">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Add Invoice Item Modal -->
+    <div id="item-modal" class="modal hidden">
+        <div class="modal-content glass">
+            <div class="modal-header">
+                <h2>Add Item to Invoice</h2>
+                <button class="btn-close" onclick="closeModal('item-modal')">✕</button>
+            </div>
+            <form id="item-form" class="modal-form">
+                <div class="form-group">
+                    <label for="item-type">Item Type *</label>
+                    <select id="item-type" class="form-control" onchange="loadItemsByType()" required>
+                        <option value="">Select Type</option>
+                        <option value="product">Product</option>
+                        <option value="service">Service</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="item-name">Item Name *</label>
+                    <select id="item-name" class="form-control" required>
+                        <option value="">Select Item</option>
+                    </select>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="item-qty">Quantity</label>
+                        <input type="number" id="item-qty" class="form-control" value="1" step="0.01">
+                    </div>
+                    <div class="form-group">
+                        <label for="item-price">Unit Price</label>
+                        <input type="number" id="item-price" class="form-control" step="0.01">
+                    </div>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('item-modal')">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Add Item</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Payment Modal -->
+    <div id="payment-modal" class="modal hidden">
+        <div class="modal-content glass">
+            <div class="modal-header">
+                <h2>Record Payment</h2>
+                <button class="btn-close" onclick="closeModal('payment-modal')">✕</button>
+            </div>
+            <form id="payment-form" class="modal-form">
+                <div class="form-group">
+                    <label>Invoice Total</label>
+                    <input type="text" id="payment-total" class="form-control" disabled>
+                </div>
+                <div class="form-group">
+                    <label>Amount Paid</label>
+                    <input type="number" id="payment-amount" class="form-control" step="0.01" required>
+                </div>
+                <div class="form-group">
+                    <label for="payment-method">Payment Method</label>
+                    <select id="payment-method" class="form-control" required>
+                        <option value="cash">Cash</option>
+                        <option value="check">Check</option>
+                        <option value="upi">UPI</option>
+                        <option value="bank">Bank Transfer</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="payment-notes">Notes</label>
+                    <textarea id="payment-notes" class="form-control" rows="3"></textarea>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('payment-modal')">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Record Payment</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast hidden"></div>
+
+    <!-- Scripts -->
+    <script src="js/db.js"></script>
+    <script src="js/utils.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/invoice.js"></script>
+    <script src="js/inventory.js"></script>
+    <script src="js/customers.js"></script>
+    <script src="js/reports.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
