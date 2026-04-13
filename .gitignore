@@ -1,0 +1,14 @@
+# Exclude environment variables
+.env
+
+# IDE settings
+.idea/
+.vscode/
+
+# Build outputs
+/build/
+/dist/
+
+# OS generated files
+.DS_Store
+Thumbs.db
