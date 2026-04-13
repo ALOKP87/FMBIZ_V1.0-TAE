@@ -1,0 +1,71 @@
+:root.light-classic {
+    --primary: #2563EB;
+    --secondary: #10B981;
+    --danger: #EF4444;
+    --warning: #F59E0B;
+    --info: #3B82F6;
+    
+    --bg-primary: #FAFAFA;
+    --bg-secondary: #F3F4F6;
+    --bg-tertiary: #FFFFFF;
+    
+    --text-primary: #1F2937;
+    --text-secondary: #6B7280;
+    --text-tertiary: #9CA3AF;
+    
+    --border-color: #E5E7EB;
+}
+
+:root.light-frost {
+    --primary: #0EA5E9;
+    --secondary: #06B6D4;
+    --danger: #DC2626;
+    --warning: #F59E0B;
+    --info: #0284C7;
+    
+    --bg-primary: #F0F9FF;
+    --bg-secondary: #E0F2FE;
+    --bg-tertiary: #FFFFFF;
+    
+    --text-primary: #0C4A6E;
+    --text-secondary: #0369A1;
+    --text-tertiary: #0EA5E9;
+    
+    --border-color: #BAE6FD;
+}
+
+:root.dark-amoled {
+    --primary: #3B82F6;
+    --secondary: #10B981;
+    --danger: #FCA5A5;
+    --warning: #FBBF24;
+    --info: #60A5FA;
+    
+    --bg-primary: #000000;
+    --bg-secondary: #111111;
+    --bg-tertiary: #1F2937;
+    
+    --text-primary: #F3F4F6;
+    --text-secondary: #D1D5DB;
+    --text-tertiary: #9CA3AF;
+    
+    --border-color: #374151;
+}
+
+:root.dark-graphite {
+    --primary: #60A5FA;
+    --secondary: #34D399;
+    --danger: #FCA5A5;
+    --warning: #FBBF24;
+    --info: #93C5FD;
+    
+    --bg-primary: #1F2937;
+    --bg-secondary: #111827;
+    --bg-tertiary: #1F2937;
+    
+    --text-primary: #F3F4F6;
+    --text-secondary: #D1D5DB;
+    --text-tertiary: #9CA3AF;
+    
+    --border-color: #374151;
+}
